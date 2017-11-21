@@ -63,6 +63,18 @@ class PlotAnnotation:
             ymax = int(annotation.find('./bndbox/ymax').text)
             self._draw_on_img(xmin, ymin, xmax, ymax, label)
 
+    def plot_annotation(self, boxes):
+
+        image_path = os.path.join(self.img_path, self.file_name + '.' + self.img_file_extension)
+        self._assert_path(image_path, 'The corresponding image file for annotation not found at: ' + image_path)
+
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        self.image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # Draw the boxes
+        for (xmin, ymin, xmax, ymax) in boxes:
+            self._draw_on_img(xmin, ymin, xmax, ymax, 'Biker')
+
 if __name__ == '__main__':
     img_db_path = os.path.join('/home/joseph/Dataset/vanila_stanford_drone_dataset/sdd_train_test_bookstore/JPEGImages')
     annotation_path = os.path.join('/home/joseph/Dataset/vanila_stanford_drone_dataset/sdd_train_test_bookstore/Annotations')

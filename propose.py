@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
+import scipy.io as io
+
 from lib.map import HeatMap
 from lib.plot_annotation import PlotAnnotation
 
@@ -38,13 +40,16 @@ class RegionProposer:
             plt.imshow(image)
         plt.show()
 
+    def save_to_mat(self, filename, detections):
+        boxes = {'boxes': detections}
+        proposals = {'proposals': boxes}
+        io.savemat(filename, proposals)
+
     def propose(self):
         # Read each annotation
-        file_count = 0
-        for annotation_file in os.listdir(self.annotation_path):
+        for file_count, annotation_file in enumerate(os.listdir(self.annotation_path)):
             if os.path.isfile(os.path.join(self.annotation_path, annotation_file)):
-                print self.annotation_path
-                print annotation_file
+
                 # Read the corresponding image
                 file_name, _ = annotation_file.split('.')
                 image_path = os.path.join(self.img_path, file_name + '.' + self.img_file_extension)
@@ -101,26 +106,28 @@ class RegionProposer:
                     bounding_boxes = [cv2.boundingRect(c) for c in contours]
                     contour_area = [cv2.contourArea(c) for c in contours]
 
-                    for (x, y, w, h) in bounding_boxes:
-                        xmin_tight = int(xmin + x - padding) if int(x - padding) > 0 else xmin
-                        ymin_tight = int(ymin + y - padding) if int(y - padding) > 0 else ymin
-                        xmax_tight = int(xmin + x + w + padding) if int(x + w + padding) < map_w else xmin + map_w
-                        ymax_tight = int(ymin + y + h + padding) if int(y + h + padding) < map_h else ymin + map_h
+                    for (i, corners) in enumerate(bounding_boxes):
+                        if contour_area[i] > 100:
+                            (x, y, w, h) = corners
+                            xmin_tight = (xmin + x - padding) if (x - padding) > 0 else xmin
+                            ymin_tight = (ymin + y - padding) if (y - padding) > 0 else ymin
+                            xmax_tight = (xmin + x + w + padding) if (x + w + padding) < map_w else xmin + map_w
+                            ymax_tight = (ymin + y + h + padding) if (y + h + padding) < map_h else ymin + map_h
 
-                        box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
-                        boxes.append(box)
+                            box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                            boxes.append(box)
 
-                        heatmaps.append(heat_map)
+                            heatmaps.append(heat_map)
 
-                print 'For ', file_name, ' Number of boxes: ', np.array(boxes).shape
+                # print 'For ', file_name, ' Number of boxes: ', np.array(boxes).shape
                 # Save the boxes to matlab file.
+                self.save_to_mat(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '.mat'), boxes)
 
                 # Plot annotation
                 # p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
-                # p.plot_annotation()
-                # p.save_annotated_image('./data/annotated_images/enhanced_' + file_name + '.png')
+                # p.plot_annotation(boxes)
+                # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
 
-                file_count += 1
                 print 'Done with: ', file_count
 
                 # self._display_images(patches)
