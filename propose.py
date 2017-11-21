@@ -65,8 +65,6 @@ class RegionProposer:
                 intitial_annotation_count = len(root)
 
                 # For each bb-annotation in annotation:
-                patches = []
-                heatmaps = []
                 boxes = []
                 padding = 0
                 for annotation in root.findall('./object'):
@@ -77,7 +75,6 @@ class RegionProposer:
 
                     # Crop the patch
                     patch = image[ymin:ymax, xmin:xmax]
-                    patches.append(patch)
 
                     # Get the objectness
                     heat_map = self.heatmap_obj.get_map(patch)
@@ -117,9 +114,6 @@ class RegionProposer:
                             box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
                             boxes.append(box)
 
-                            heatmaps.append(heat_map)
-
-                # print 'For ', file_name, ' Number of boxes: ', np.array(boxes).shape
                 # Save the boxes to matlab file.
                 self.save_to_mat(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '.mat'), boxes)
 
@@ -129,9 +123,6 @@ class RegionProposer:
                 # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
 
                 print 'Done with: ', file_count
-
-                # self._display_images(patches)
-                # self._display_images(heatmaps)
 
 if __name__ == '__main__':
     np.set_printoptions(threshold='nan')
