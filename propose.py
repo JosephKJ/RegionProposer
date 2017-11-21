@@ -43,7 +43,8 @@ class RegionProposer:
         file_count = 0
         for annotation_file in os.listdir(self.annotation_path):
             if os.path.isfile(os.path.join(self.annotation_path, annotation_file)):
-
+                print self.annotation_path
+                print annotation_file
                 # Read the corresponding image
                 file_name, _ = annotation_file.split('.')
                 image_path = os.path.join(self.img_path, file_name + '.' + self.img_file_extension)
@@ -97,24 +98,21 @@ class RegionProposer:
 
                     # Rejecting again if the number of disconnected components are > 3
                     im2, contours, hierarchy = cv2.findContours(heat_map, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                    if len(contours) >= 3:
-                        heatmaps.append(np.zeros((2, 2)))
-                    else:
-                        bounding_boxes = [cv2.boundingRect(c) for c in contours]
-                        contour_area = [cv2.contourArea(c) for c in contours]
+                    bounding_boxes = [cv2.boundingRect(c) for c in contours]
+                    contour_area = [cv2.contourArea(c) for c in contours]
 
-                        for (x, y, w, h) in bounding_boxes:
-                            xmin_tight = int(xmin + x - padding) if int(x - padding) > 0 else xmin
-                            ymin_tight = int(ymin + y - padding) if int(y - padding) > 0 else ymin
-                            xmax_tight = int(xmin + x + w + padding) if int(x + w + padding) < map_w else xmin + map_w
-                            ymax_tight = int(ymin + y + h + padding) if int(y + h + padding) < map_h else ymin + map_h
+                    for (x, y, w, h) in bounding_boxes:
+                        xmin_tight = int(xmin + x - padding) if int(x - padding) > 0 else xmin
+                        ymin_tight = int(ymin + y - padding) if int(y - padding) > 0 else ymin
+                        xmax_tight = int(xmin + x + w + padding) if int(x + w + padding) < map_w else xmin + map_w
+                        ymax_tight = int(ymin + y + h + padding) if int(y + h + padding) < map_h else ymin + map_h
 
-                            box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                        box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                        boxes.append(box)
 
-                            heatmaps.append(heat_map)
+                        heatmaps.append(heat_map)
 
-                boxes.append(box)
-                print boxes.shape
+                print 'For ', file_name, ' Number of boxes: ', np.array(boxes).shape
                 # Save the boxes to matlab file.
 
                 # Plot annotation
