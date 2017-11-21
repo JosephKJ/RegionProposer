@@ -35,7 +35,7 @@ class HeatMap:
 
     def get_map(self, image, verbose=False):
 
-        image = scipy.misc.imresize(image, 8.0, interp='bicubic')
+        # image = scipy.misc.imresize(image, 8.0, interp='bicubic')
         image_shape = image.shape
 
         # Image Pre-processing
@@ -64,11 +64,13 @@ class HeatMap:
         feature_sum = np.sum(feat, axis=0)
         np.set_printoptions(threshold='nan')
         feature_sum = (255 * (feature_sum - np.min(feature_sum)) / np.ptp(feature_sum)).astype(int)
-        threshold = feature_sum.mean()+20
+        # feature_sum = (feature_sum - np.min(feature_sum)) / np.ptp(feature_sum)
+        threshold = feature_sum.mean() + 20
+        # threshold = 0
         feature_sum = np.ma.masked_where(feature_sum <= threshold, feature_sum)
 
         # Scaling the map to the input image size.
-        feature_sum = scipy.misc.imresize(feature_sum, 2.0, interp='bicubic')
+        feature_sum = scipy.misc.imresize(feature_sum, image_shape, interp='bicubic')
         feature_sum = np.ma.masked_where(feature_sum <= threshold, feature_sum)
 
         if verbose:
