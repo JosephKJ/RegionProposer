@@ -65,7 +65,7 @@ class HeatMap:
         np.set_printoptions(threshold='nan')
         feature_sum = (255 * (feature_sum - np.min(feature_sum)) / np.ptp(feature_sum)).astype(int)
         # feature_sum = (feature_sum - np.min(feature_sum)) / np.ptp(feature_sum)
-        threshold = feature_sum.mean() + 20
+        threshold = feature_sum.mean()
         # threshold = 0
         feature_sum = np.ma.masked_where(feature_sum <= threshold, feature_sum)
 

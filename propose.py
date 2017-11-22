@@ -178,6 +178,7 @@ class RegionProposer:
             self.save_to_mat(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '.mat'), boxes)
 
             # Plot annotation
+            # self._display_image(heat_map)
             # p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
             # p.plot_annotation(boxes)
             # p.display_annotated_image()
@@ -185,7 +186,6 @@ class RegionProposer:
 
             print 'Done with: ', file_count
             # print 'Len of boxes:', np.array(boxes).shape
-            # self._display_image(heat_map)
 
 
 if __name__ == '__main__':
