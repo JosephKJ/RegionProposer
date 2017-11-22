@@ -182,7 +182,7 @@ class RegionProposer:
             # p.plot_annotation(boxes)
             # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
             #
-            # print 'Done with: ', file_count
+            print 'Done with: ', file_count
             # print 'Len of boxes:', np.array(boxes).shape
             # self._display_image(heat_map)
 
