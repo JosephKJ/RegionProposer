@@ -2,7 +2,8 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
-
+import scipy.io as io
+import numpy as np
 
 class PlotAnnotation:
     def __init__(self, path_to_images, path_to_annotations, file_name, img_file_extension='jpg'):
@@ -73,20 +74,28 @@ class PlotAnnotation:
 
         # Draw the boxes
         for (xmin, ymin, xmax, ymax) in boxes:
+            xmin = int(xmin)
+            ymin = int(ymin)
+            xmax = int(xmax)
+            ymax = int(ymax)
             self._draw_on_img(xmin, ymin, xmax, ymax, 'Biker')
 
+    def read_mat_file(self, filename):
+        proposals = io.loadmat(filename).get('proposals')
+        return proposals[0][0][0]
+
 if __name__ == '__main__':
-    img_db_path = os.path.join('/home/joseph/Dataset/vanila_stanford_drone_dataset/sdd_train_test_bookstore/JPEGImages')
-    annotation_path = os.path.join('/home/joseph/Dataset/vanila_stanford_drone_dataset/sdd_train_test_bookstore/Annotations')
-    dest_img_path = os.path.join('./data/sdd_scene0_annotation_only_good_annotations/video0')
+    # img_db_path = os.path.join('/home/joseph/Dataset/vanila_stanford_drone_dataset/sdd_train_test_bookstore/JPEGImages')
+    # annotation_path = os.path.join('/home/joseph/Dataset/vanila_stanford_drone_dataset/sdd_train_test_bookstore/Annotations')
+    # dest_img_path = os.path.join('./data/sdd_scene0_annotation_only_good_annotations/video0')
 
     # for i in range(1, 13333):
-    for f in os.listdir(annotation_path):
-        if os.path.isfile(os.path.join(annotation_path, f)) and f.startswith('bookstore_video0'):
-            img_name = f.split('.')[0]
-            p = PlotAnnotation(img_db_path, annotation_path, img_name)
-            p.plot_annotation()
-            p.save_annotated_image(dest_img_path + 'enh_' + img_name + '.jpg')
+    # for f in os.listdir(annotation_path):
+    #     if os.path.isfile(os.path.join(annotation_path, f)) and f.startswith('bookstore_video0'):
+    #         img_name = f.split('.')[0]
+    #         p = PlotAnnotation(img_db_path, annotation_path, img_name)
+    #         p.plot_annotation()
+    #         p.save_annotated_image(dest_img_path + 'enh_' + img_name + '.jpg')
 
     # img_db_path = os.path.join('./data/images')
     # annotation_path = os.path.join('./data/annotations')
@@ -95,3 +104,17 @@ if __name__ == '__main__':
     # p.plot_annotation()
     # # p.display_annotated_image()
     # p.save_annotated_image('/home/joseph/original_annotation.png')
+
+    mat_file = os.path.join('/Users/josephkj/PycharmProjects/object-proposals/data/objectness/009963.jpg.mat')
+
+    img_db_path = os.path.join('/Users/josephkj/Desktop')
+    annotation_path = os.path.join('./data/annotations')
+    img_name = '009963'
+
+    p = PlotAnnotation(img_db_path, annotation_path, img_name)
+    boxes = p.read_mat_file(mat_file)
+    print np.array(boxes).shape
+    p.plot_annotation(boxes[:20,])
+    p.display_annotated_image()
+
+

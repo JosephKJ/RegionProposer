@@ -166,31 +166,54 @@ class RegionProposer:
             for (i, corners) in enumerate(bounding_boxes):
                 if contour_area[i] > 0:
                     (x, y, w, h) = corners
-                    xmin_tight = (xmin + x - padding) if (x - padding) > 0 else xmin
-                    ymin_tight = (ymin + y - padding) if (y - padding) > 0 else ymin
-                    xmax_tight = (xmin + x + w + padding) if (x + w + padding) < map_w else xmin + map_w
-                    ymax_tight = (ymin + y + h + padding) if (y + h + padding) < map_h else ymin + map_h
 
-                    box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
-                    boxes.append(box)
+                    # Scaling
+                    for padding in range(-10, 10):
+                        xmin_tight = (xmin + x - padding) if (x - padding) > 0 else xmin
+                        ymin_tight = (ymin + y - padding) if (y - padding) > 0 else ymin
+                        xmax_tight = (xmin + x + w + padding) if (x + w + padding) < map_w else xmin + map_w
+                        ymax_tight = (ymin + y + h + padding) if (y + h + padding) < map_h else ymin + map_h
+
+                        box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                        boxes.append(box)
+
+                    # Translate x
+                    for x_delta in range(-10, 10):
+                        xmin_tight = (xmin + x - x_delta) if (x - x_delta) > 0 else xmin
+                        ymin_tight = (ymin + y) if y > 0 else ymin
+                        xmax_tight = (xmin + x + w + x_delta) if (x + w + x_delta) < map_w else xmin + map_w
+                        ymax_tight = (ymin + y + h) if (y + h) < map_h else ymin + map_h
+
+                        box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                        boxes.append(box)
+
+                    # Translate y
+                    for y_delta in range(-10, 10):
+                        xmin_tight = (xmin + x) if x > 0 else xmin
+                        ymin_tight = (ymin + y - y_delta) if (y - y_delta) > 0 else ymin
+                        xmax_tight = (xmin + x + w) if (x + w) < map_w else xmin + map_w
+                        ymax_tight = (ymin + y + h + y_delta) if (y + h + y_delta) < map_h else ymin + map_h
+
+                        box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                        boxes.append(box)
 
             # Save the boxes to matlab file.
             self.save_to_mat(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '.mat'), boxes)
 
             # Plot annotation
-            # self._display_image(heat_map)
-            # p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
-            # p.plot_annotation(boxes)
-            # p.display_annotated_image()
+            self._display_image(heat_map)
+            p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
+            p.plot_annotation(boxes)
+            p.display_annotated_image()
             # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
 
             print 'Done with: ', file_count
-            # print 'Len of boxes:', np.array(boxes).shape
+            print 'Len of boxes:', np.array(boxes).shape
 
 
 if __name__ == '__main__':
     np.set_printoptions(threshold='nan')
-    img_db_path = os.path.join('./data/images')
+    img_db_path = os.path.join('./data/images_single_backup')
     annotation_path = os.path.join('./data/annotations')
     dest_annotation_path = os.path.join('./data/result')
 
