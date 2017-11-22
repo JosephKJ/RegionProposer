@@ -124,6 +124,69 @@ class RegionProposer:
 
                 print 'Done with: ', file_count
 
+    def unsupervised_propose(self):
+        # Read each annotation
+        for file_count, image_file in enumerate(os.listdir(self.img_path)):
+            # Read the image
+            file_name, _ = image_file.split('.')
+            image_path = os.path.join(self.img_path, file_name + '.' + self.img_file_extension)
+            self._assert_path(image_path, 'The  image file cannot read from: ' + image_path)
+
+            image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+            # For each bb-annotation in annotation:
+            boxes = []
+            padding = 0
+
+            xmin = 0
+            ymin = 0
+
+            # Get the objectness
+            heat_map = self.heatmap_obj.get_map(image)
+            heat_map = heat_map.data * ~heat_map.mask
+
+            # Binary Map
+            heat_map[heat_map > 0] = 1
+            map_h, map_w = heat_map.shape
+
+            # Flood filling it
+            im_floodfill = heat_map.copy()
+            h, w = im_floodfill.shape[:2]
+            mask = np.zeros((h + 2, w + 2), np.uint8)
+            cv2.floodFill(im_floodfill, mask, (0, 0), 255)
+            im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+            heat_map = heat_map | im_floodfill_inv
+
+            # Finding Contours and bounding boxes
+            im2, contours, hierarchy = cv2.findContours(heat_map, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            bounding_boxes = [cv2.boundingRect(c) for c in contours]
+            contour_area = [cv2.contourArea(c) for c in contours]
+
+            for (i, corners) in enumerate(bounding_boxes):
+                if contour_area[i] > 0:
+                    (x, y, w, h) = corners
+                    xmin_tight = (xmin + x - padding) if (x - padding) > 0 else xmin
+                    ymin_tight = (ymin + y - padding) if (y - padding) > 0 else ymin
+                    xmax_tight = (xmin + x + w + padding) if (x + w + padding) < map_w else xmin + map_w
+                    ymax_tight = (ymin + y + h + padding) if (y + h + padding) < map_h else ymin + map_h
+
+                    box = [xmin_tight, ymin_tight, xmax_tight, ymax_tight]
+                    boxes.append(box)
+
+            # Save the boxes to matlab file.
+            self.save_to_mat(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '.mat'), boxes)
+
+            # Plot annotation
+            # p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
+            # p.plot_annotation(boxes)
+            # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
+            #
+            # print 'Done with: ', file_count
+            # print 'Len of boxes:', np.array(boxes).shape
+            # self._display_image(heat_map)
+
+
 if __name__ == '__main__':
     np.set_printoptions(threshold='nan')
     img_db_path = os.path.join('./data/images')
@@ -131,4 +194,4 @@ if __name__ == '__main__':
     dest_annotation_path = os.path.join('./data/result')
 
     e = RegionProposer(img_db_path, annotation_path, dest_annotation_path)
-    e.propose()
+    e.unsupervised_propose()
