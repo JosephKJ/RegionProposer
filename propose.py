@@ -168,7 +168,7 @@ class RegionProposer:
                     (x, y, w, h) = corners
 
                     # Scaling
-                    for padding in range(-10, 10):
+                    for padding in range(-100, 100, 20):
                         xmin_tight = (xmin + x - padding) if (x - padding) > 0 else xmin
                         ymin_tight = (ymin + y - padding) if (y - padding) > 0 else ymin
                         xmax_tight = (xmin + x + w + padding) if (x + w + padding) < map_w else xmin + map_w
@@ -178,7 +178,7 @@ class RegionProposer:
                         boxes.append(box)
 
                     # Translate x
-                    for x_delta in range(-10, 10):
+                    for x_delta in range(-100, 100, 20):
                         xmin_tight = (xmin + x - x_delta) if (x - x_delta) > 0 else xmin
                         ymin_tight = (ymin + y) if y > 0 else ymin
                         xmax_tight = (xmin + x + w + x_delta) if (x + w + x_delta) < map_w else xmin + map_w
@@ -188,7 +188,7 @@ class RegionProposer:
                         boxes.append(box)
 
                     # Translate y
-                    for y_delta in range(-10, 10):
+                    for y_delta in range(-100, 100, 20):
                         xmin_tight = (xmin + x) if x > 0 else xmin
                         ymin_tight = (ymin + y - y_delta) if (y - y_delta) > 0 else ymin
                         xmax_tight = (xmin + x + w) if (x + w) < map_w else xmin + map_w
@@ -201,10 +201,10 @@ class RegionProposer:
             self.save_to_mat(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '.mat'), boxes)
 
             # Plot annotation
-            self._display_image(heat_map)
-            p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
-            p.plot_annotation(boxes)
-            p.display_annotated_image()
+            # self._display_image(heat_map)
+            # p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
+            # p.plot_annotation(boxes)
+            # p.display_annotated_image()
             # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
 
             print 'Done with: ', file_count
@@ -213,7 +213,7 @@ class RegionProposer:
 
 if __name__ == '__main__':
     np.set_printoptions(threshold='nan')
-    img_db_path = os.path.join('./data/images_single_backup')
+    img_db_path = os.path.join('./data/images')
     annotation_path = os.path.join('./data/annotations')
     dest_annotation_path = os.path.join('./data/result')
 
