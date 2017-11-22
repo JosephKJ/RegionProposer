@@ -137,7 +137,7 @@ class RegionProposer:
 
             # For each bb-annotation in annotation:
             boxes = []
-            padding = 0
+            padding = 20
 
             xmin = 0
             ymin = 0
@@ -151,12 +151,12 @@ class RegionProposer:
             map_h, map_w = heat_map.shape
 
             # Flood filling it
-            im_floodfill = heat_map.copy()
-            h, w = im_floodfill.shape[:2]
-            mask = np.zeros((h + 2, w + 2), np.uint8)
-            cv2.floodFill(im_floodfill, mask, (0, 0), 255)
-            im_floodfill_inv = cv2.bitwise_not(im_floodfill)
-            heat_map = heat_map | im_floodfill_inv
+            # im_floodfill = heat_map.copy()
+            # h, w = im_floodfill.shape[:2]
+            # mask = np.zeros((h + 2, w + 2), np.uint8)
+            # cv2.floodFill(im_floodfill, mask, (0, 0), 255)
+            # im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+            # heat_map = heat_map | im_floodfill_inv
 
             # Finding Contours and bounding boxes
             im2, contours, hierarchy = cv2.findContours(heat_map, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -180,8 +180,9 @@ class RegionProposer:
             # Plot annotation
             # p = PlotAnnotation(self.img_path, self.dest_annotation_path, file_name)
             # p.plot_annotation(boxes)
+            # p.display_annotated_image()
             # p.save_annotated_image(os.path.join(self.dest_annotation_path, file_name + '.' + self.img_file_extension+ '_annotated.jpg'))
-            #
+
             print 'Done with: ', file_count
             # print 'Len of boxes:', np.array(boxes).shape
             # self._display_image(heat_map)
