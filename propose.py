@@ -1,5 +1,6 @@
 import os
 import cv2
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
@@ -44,6 +45,9 @@ class RegionProposer:
         boxes = {'boxes': detections}
         proposals = {'proposals': boxes}
         io.savemat(filename, proposals)
+
+    def save_image(self, image, path):
+        cv2.imwrite(path, image)
 
     def propose(self):
         # Read each annotation
@@ -210,21 +214,26 @@ class RegionProposer:
             print 'Done with: ', file_count
             print 'Len of boxes:', np.array(boxes).shape
 
-    def getHeatMap(self, img_path):
+    def getHeatMap(self, img_path, img_name):
 
         # Read the image
-        image_path = os.path.join(img_path)
+        image_path = os.path.join(img_path, img_name)
         self._assert_path(image_path, 'The  image file cannot read from: ' + image_path)
 
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # Get the objectness
         heat_map = self.heatmap_obj.get_map(image)
         heat_map = heat_map.data * ~heat_map.mask
-        objectness_heatmap = cv2.applyColorMap(np.uint8(-heat_map), cv2.COLORMAP_JET)
+        objectness_heatmap = cv2.applyColorMap(heat_map, cv2.COLORMAP_JET)
 
-        self._display_image(objectness_heatmap)
+        file_name, _ = img_name.split('.')
+        self.save_image(objectness_heatmap, os.path.join(img_path, file_name + '_result.png'))
+
+        pickle_out = open(os.path.join(img_path, 'heat_map.pickle'), "wb")
+        pickle.dump(heat_map, pickle_out)
+        pickle_out.close()
+
 
         # # Binary Map
         # heat_map[heat_map > 0] = 1
@@ -248,4 +257,4 @@ if __name__ == '__main__':
 
     e = RegionProposer(img_db_path, annotation_path, dest_annotation_path)
     # e.unsupervised_propose()
-    e.getHeatMap('/home/joseph/cat.jpg')
+    e.getHeatMap('/home/joseph', 'cat.jpg')
