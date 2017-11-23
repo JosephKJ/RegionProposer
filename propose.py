@@ -210,10 +210,10 @@ class RegionProposer:
             print 'Done with: ', file_count
             print 'Len of boxes:', np.array(boxes).shape
 
-    def getHeatMap(self, image_file):
+    def getHeatMap(self, img_path):
+
         # Read the image
-        file_name, _ = image_file.split('.')
-        image_path = os.path.join(self.img_path, file_name + '.' + self.img_file_extension)
+        image_path = os.path.join(img_path)
         self._assert_path(image_path, 'The  image file cannot read from: ' + image_path)
 
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
@@ -248,4 +248,4 @@ if __name__ == '__main__':
 
     e = RegionProposer(img_db_path, annotation_path, dest_annotation_path)
     # e.unsupervised_propose()
-    e.getHeatMap()
+    e.getHeatMap('/home/joseph/cat.jpg')
