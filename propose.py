@@ -210,6 +210,35 @@ class RegionProposer:
             print 'Done with: ', file_count
             print 'Len of boxes:', np.array(boxes).shape
 
+    def getHeatMap(self, image_file):
+        # Read the image
+        file_name, _ = image_file.split('.')
+        image_path = os.path.join(self.img_path, file_name + '.' + self.img_file_extension)
+        self._assert_path(image_path, 'The  image file cannot read from: ' + image_path)
+
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # Get the objectness
+        heat_map = self.heatmap_obj.get_map(image)
+        heat_map = heat_map.data * ~heat_map.mask
+        objectness_heatmap = cv2.applyColorMap(np.uint8(-heat_map), cv2.COLORMAP_JET)
+
+        self._display_image(objectness_heatmap)
+
+        # # Binary Map
+        # heat_map[heat_map > 0] = 1
+        # map_h, map_w = heat_map.shape
+
+        # Flood filling it
+        # im_floodfill = heat_map.copy()
+        # h, w = im_floodfill.shape[:2]
+        # mask = np.zeros((h + 2, w + 2), np.uint8)
+        # cv2.floodFill(im_floodfill, mask, (0, 0), 255)
+        # im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+        # heat_map = heat_map | im_floodfill_inv
+
+
 
 if __name__ == '__main__':
     np.set_printoptions(threshold='nan')
@@ -218,4 +247,5 @@ if __name__ == '__main__':
     dest_annotation_path = os.path.join('./data/result')
 
     e = RegionProposer(img_db_path, annotation_path, dest_annotation_path)
-    e.unsupervised_propose()
+    # e.unsupervised_propose()
+    e.getHeatMap()
