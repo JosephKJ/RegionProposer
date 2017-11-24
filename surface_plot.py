@@ -11,6 +11,7 @@ heat_map = pickle.load(pickle_in)
 w, h = heat_map.shape
 
 print heat_map.shape
+heat_map = heat_map
 
 # downscaling has a "smoothing" effect
 heat_map = scipy.misc.imresize(heat_map, 0.50, interp='cubic')
@@ -22,6 +23,13 @@ xx, yy = np.mgrid[0:heat_map.shape[0], 0:heat_map.shape[1]]
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 ax.plot_surface(xx, yy, heat_map ,rstride=1, cstride=1, cmap=plt.cm.jet, linewidth=0)
+
+# ax.view_init(45, 45)
+# rotate the axes and update
+# for angle in range(0, 180):
+#     ax.view_init(30, angle)
+#     plt.draw()
+#     plt.pause(.001)
 
 # show it
 plt.show()
