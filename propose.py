@@ -6,6 +6,7 @@ import scipy
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import scipy.io as io
+from mpl_toolkits.mplot3d import Axes3D
 
 from lib.map import HeatMap
 from lib.plot_annotation import PlotAnnotation
@@ -224,7 +225,8 @@ class RegionProposer:
 
         # create the figure
         fig = plt.figure()
-        ax = fig.gca(projection='3d')
+        ax = Axes3D(fig)
+        # ax = fig.gca(projection='3d')
         ax.plot_surface(xx, yy, heat_map, rstride=1, cstride=1, cmap=plt.cm.jet, linewidth=0)
         plt.show()
 
