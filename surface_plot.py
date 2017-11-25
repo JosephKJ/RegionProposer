@@ -8,7 +8,7 @@ import scipy.misc
 
 pickle_in = open("heat_map.pickle","rb")
 heat_map = pickle.load(pickle_in)
-w, h = heat_map.shape
+# w, h = heat_map.shape
 
 print heat_map.shape
 heat_map = heat_map
@@ -18,7 +18,6 @@ heat_map = scipy.misc.imresize(heat_map, 0.50, interp='cubic')
 print heat_map.shape
 # create the x and y coordinate arrays (here we just use pixel indices)
 xx, yy = np.mgrid[0:heat_map.shape[0], 0:heat_map.shape[1]]
-
 # create the figure
 fig = plt.figure()
 ax = fig.gca(projection='3d')
@@ -30,6 +29,9 @@ ax.plot_surface(xx, yy, heat_map ,rstride=1, cstride=1, cmap=plt.cm.jet, linewid
 #     ax.view_init(30, angle)
 #     plt.draw()
 #     plt.pause(.001)
-
+# plt.gca().invert_xaxis()
+# plt.gca().invert_yaxis()
+# plt.gca().invert_zaxis()
+ax.view_init(75, 45)
 # show it
 plt.show()

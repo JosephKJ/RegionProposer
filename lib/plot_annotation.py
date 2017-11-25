@@ -114,7 +114,7 @@ if __name__ == '__main__':
     p = PlotAnnotation(img_db_path, annotation_path, img_name)
     boxes = p.read_mat_file(mat_file)
     print np.array(boxes).shape
-    p.plot_annotation(boxes[:20,])
+    p.plot_annotation(boxes)
     p.display_annotated_image()
 
 

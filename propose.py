@@ -2,6 +2,7 @@ import os
 import cv2
 import pickle
 import numpy as np
+import scipy
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import scipy.io as io
@@ -214,7 +215,20 @@ class RegionProposer:
             print 'Done with: ', file_count
             print 'Len of boxes:', np.array(boxes).shape
 
-    def getHeatMap(self, img_path, img_name):
+    def get_surface_plot(self, heat_map):
+        # downscaling has a "smoothing" effect
+        heat_map = scipy.misc.imresize(heat_map, 0.50, interp='cubic')
+
+        # create the x and y coordinate arrays (here we just use pixel indices)
+        xx, yy = np.mgrid[0:heat_map.shape[0], 0:heat_map.shape[1]]
+
+        # create the figure
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.plot_surface(xx, yy, heat_map, rstride=1, cstride=1, cmap=plt.cm.jet, linewidth=0)
+        plt.show()
+
+    def get_heat_map(self, img_path, img_name):
 
         # Read the image
         image_path = os.path.join(img_path, img_name)
@@ -230,9 +244,7 @@ class RegionProposer:
         file_name, _ = img_name.split('.')
         self.save_image(objectness_heatmap, os.path.join(img_path, file_name + '_result.png'))
 
-        pickle_out = open(os.path.join(img_path, 'heat_map.pickle'), "wb")
-        pickle.dump(heat_map, pickle_out)
-        pickle_out.close()
+        self.get_surface_plot(heat_map)
 
 
         # # Binary Map
@@ -257,4 +269,4 @@ if __name__ == '__main__':
 
     e = RegionProposer(img_db_path, annotation_path, dest_annotation_path)
     # e.unsupervised_propose()
-    e.getHeatMap('/home/joseph', 'cat.jpg')
+    e.get_heat_map('/home/joseph', 'cat.jpg')
